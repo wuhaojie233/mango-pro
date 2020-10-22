@@ -1,0 +1,13 @@
+<div class="setting-switch" (click)="switch()">设置</div>
+<nz-drawer
+  [nzClosable]="false"
+  [nzVisible]="nzVisible"
+  nzPlacement="right"
+  nzTitle="整体风格设置"
+  (nzOnClose)="close()"
+  [nzClosable]="true"
+  [nzMaskClosable]="true"
+>
+  <button nz-button nzType="default" (click)="setTheme('drak')">暗色</button>
+  <button nz-button nzType="primary" (click)="setTheme('light')">白色</button>
+</nz-drawer>
