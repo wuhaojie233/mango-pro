@@ -4,9 +4,9 @@ export interface Settings {
    */
   title: string
   /**
-   * 菜单主题 dark/light
+   * 菜单主题 true:light/falsedark 
    */
-  navTheme: string
+  navTheme: boolean
   /**
    * 蚂蚁设计原色
    */

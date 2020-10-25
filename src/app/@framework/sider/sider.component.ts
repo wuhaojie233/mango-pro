@@ -9,10 +9,16 @@ import { Component, Input, OnInit } from '@angular/core'
 export class SiderComponent implements OnInit {
   isCollapsed = false
   nzMode = 'inline'
+  // nzTheme = 'dark'
+  getter
+
   get nzTheme() {
+    console.warn('我要获取的值' + this.frameService.navTheme)
     return this.frameService.navTheme
   }
-  constructor(private frameService: FrameworkService) {}
+
+  setter() {}
+  constructor(public frameService: FrameworkService) {}
 
   ngOnInit(): void {}
 

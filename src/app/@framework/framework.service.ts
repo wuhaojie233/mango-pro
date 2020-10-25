@@ -7,7 +7,7 @@ import { Settings } from '../@shared/interface/settings'
 export class FrameworkService implements Settings {
   title: string = 'NG-Zorro'
 
-  navTheme: string = 'dark'
+  navTheme: boolean = false
 
   primaryColor: string = '#52C41A'
 

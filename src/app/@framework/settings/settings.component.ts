@@ -19,6 +19,7 @@ export class SettingsComponent implements OnInit {
   ngOnInit(): void {}
   setTheme(data) {
     this.frameService.navTheme = data
+    console.warn('navTheme--->' + this.frameService.navTheme)
   }
   switch() {
     this.nzVisible = !this.nzVisible
