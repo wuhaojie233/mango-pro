@@ -8,9 +8,9 @@ export const environment = {
   settings: (): Settings => {
     return {
       title: 'NG-Zorro', // 项目名字
-      navTheme: 'dark', // 菜单主题
+      navTheme: false, // 菜单主题
       primaryColor: '#52C41A', // 蚂蚁设计原色
-      layout: 'sidemenu', // 导航菜单位置: `sidemenu` or `topmenu`
+      layout: 'sideMenu', // 导航菜单位置: `sideMenu` or `topmenu`
       contentWidth: 'Fluid', //内容布局:“流体”或“固定”，只在布局是顶部菜单时工作  `Fluid` or `Fixed`
       fixedHeader: false, // 粘性的头 header
       fixSider: false, //  粘性的 siderbar

@@ -1,9 +1,10 @@
 <nz-layout class="home-layout">
   <nz-header>
+    <mango-sider *ngIf="frameService.layout === 'topMenu'"></mango-sider>
     <div class="logo"></div>
   </nz-header>
   <nz-layout>
-    <nz-sider nzWidth="200px">
+    <nz-sider *ngIf="frameService.layout === 'sideMenu'" nzWidth="200px">
       <mango-sider></mango-sider>
     </nz-sider>
 
@@ -15,7 +16,6 @@
       </nz-breadcrumb>
       <nz-content>
         <router-outlet></router-outlet>
-        <button nz-button nzType="primary">设置</button>
         <button nz-button nzType="primary" (click)="console()">console</button>
       </nz-content>
     </nz-layout>

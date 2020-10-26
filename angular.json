@@ -55,7 +55,8 @@
               }
             ],
             "styles": ["src/theme.less", "src/styles.less"],
-            "scripts": []
+            "scripts": [],
+            "allowedCommonJsDependencies": ["@ant-design/colors"]
           },
           "configurations": {
             "production": {

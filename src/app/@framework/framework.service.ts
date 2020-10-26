@@ -11,7 +11,7 @@ export class FrameworkService implements Settings {
 
   primaryColor: string = '#52C41A'
 
-  layout: string = 'sidemenu'
+  layout: string = 'sideMenu'
 
   contentWidth: string = 'Fluid'
 

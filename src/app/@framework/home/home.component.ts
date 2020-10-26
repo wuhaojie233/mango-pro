@@ -11,7 +11,7 @@ import { Settings } from '../../@shared/interface/settings'
 export class HomeComponent implements OnInit {
   isCollapsed = false
   settings: Settings = environment.settings()
-  constructor(private frameService: FrameworkService) {
+  constructor(public frameService: FrameworkService) {
     this.frameService.setSettingValue(this.settings)
   }
 

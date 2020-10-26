@@ -10,4 +10,23 @@
 >
   <button nz-button nzType="default" (click)="setTheme(false)">暗色</button>
   <button nz-button nzType="primary" (click)="setTheme(true)">白色</button>
+  <hr />
+  <div>
+    页面布局设置
+    <button nz-button nzType="default" (click)="setMenu('topMenu')">
+      TopMenu
+    </button>
+    <button nz-button nzType="primary" (click)="setMenu('sideMenu')">
+      SideMenu
+    </button>
+  </div>
+  <hr />
+  <div>
+    <button nz-button nzType="default" (click)="setThemeStyle('red')">
+      red
+    </button>
+    <button nz-button nzType="primary" (click)="setThemeStyle('blue')">
+      blue
+    </button>
+  </div>
 </nz-drawer>

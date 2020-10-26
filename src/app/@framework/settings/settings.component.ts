@@ -19,12 +19,22 @@ export class SettingsComponent implements OnInit {
   ngOnInit(): void {}
   setTheme(data) {
     this.frameService.navTheme = data
-    console.warn('navTheme--->' + this.frameService.navTheme)
+  }
+  setMenu(data) {
+    this.frameService.layout = data
   }
   switch() {
     this.nzVisible = !this.nzVisible
   }
   close() {
     this.nzVisible = false
+  }
+
+  /**
+   * @description 设置主题颜色
+   * @param {*} data 颜色
+   */
+  setThemeStyle(data) {
+    document.body.setAttribute('data-theme-style', data)
   }
 }

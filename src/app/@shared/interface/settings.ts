@@ -4,7 +4,7 @@ export interface Settings {
    */
   title: string
   /**
-   * 菜单主题 true:light/falsedark 
+   * 菜单主题 true:light/falsedark
    */
   navTheme: boolean
   /**
@@ -12,7 +12,7 @@ export interface Settings {
    */
   primaryColor: string
   /**
-   * 导航菜单位置: `sidemenu` or `topmenu`
+   * 导航菜单位置: `sideMenu` or `topMenu`
    */
   layout: string
   /**
