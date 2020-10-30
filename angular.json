@@ -55,7 +55,7 @@
               }
             ],
             "styles": ["src/theme.less", "src/styles.less"],
-            "scripts": [],
+            "scripts": ["./node_modules/less-plugin-clean-css/lib/index.js"],
             "allowedCommonJsDependencies": ["@ant-design/colors"]
           },
           "configurations": {
