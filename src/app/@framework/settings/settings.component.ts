@@ -1,19 +1,17 @@
-import { Component, Input, OnInit } from '@angular/core'
+import {
+  ChangeDetectorRef,
+  Component,
+  Input,
+  NgZone,
+  OnInit,
+} from '@angular/core'
 import { Settings } from '../../@shared/interface/settings'
 import { FrameworkService } from '../framework.service'
 
 import less from 'less'
 // import * as LessPluginCleanCSS from 'less-plugin-clean-css'
 import darkThemeVars from 'ng-zorro-antd/dark-theme'
-// declare var fs: any
 declare var LessPluginCleanCSS: any
-import * as fs from 'fs'
-
-// 如果import后还是找不到fs，则用以下方法：
-
-// 定义：
-
-// 构造方法中加载：
 
 @Component({
   selector: 'mango-settings',
@@ -22,11 +20,16 @@ import * as fs from 'fs'
 })
 export class SettingsComponent implements OnInit {
   nzVisible = false
+  globalCss = ''
   get theme() {
     return this.frameService.navTheme
   }
 
-  constructor(private frameService: FrameworkService) {}
+  constructor(
+    private frameService: FrameworkService,
+    private zone: NgZone,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {}
   setTheme(data) {
@@ -45,22 +48,26 @@ export class SettingsComponent implements OnInit {
   createheme() {
     // const fs = require('fs')
     // var fs = require('file-system')
-    const appStyles = 'assets/themes/default.less' // 应用的样式入口文件
-    const themeContent = `@import '${appStyles}';`
+    // const appStyles = 'assets/themes/default.less' // 应用的样式入口文件
+    // const themeContent = `@import '${appStyles}';`
+    const themeContent = require('ng-zorro-antd/ng-zorro-antd.less')
+    // const themeContent = `@import '${appStyles}';`
     less
       .render(themeContent, {
         javascriptEnabled: true,
         plugins: [new LessPluginCleanCSS({ advanced: true })],
         modifyVars: {
-          ...darkThemeVars,
+          // ...darkThemeVars,
+          '@primary-color': 'red',
         },
       })
       .then((data) => {
-        fs.writeFileSync(
-          // 主题样式的输出文件
-          'path/assets/themes/style.dark.css',
-          data.css
-        )
+        this.globalCss = data.css
+        // fs.writeFileSync(
+        //   // 主题样式的输出文件
+        //   'path/assets/themes/style.dark.css',
+        //   data.css
+        // )
       })
       .catch((e) => {
         // 记录渲染错误
@@ -73,22 +80,35 @@ export class SettingsComponent implements OnInit {
    * @param {*} data 颜色
    */
   setThemeStyle(theme) {
-    this.createheme()
+    // this.createheme()
+    // return
     console.warn('theme---->' + theme)
-    // if (theme === 'dark') {
-    //   const style = document.createElement('link')
-    //   style.type = 'text/css'
-    //   style.rel = 'stylesheet'
-    //   style.id = 'dark-theme'
-    //   style.href = 'assets/themes/style.dark.css'
-    //   // style.href = 'assets/themes/ng-zorro-antd.dark.min.css'
-    //   document.body.appendChild(style)
-    // } else {
-    //   const dom = document.getElementById('dark-theme')
-    //   if (dom) {
-    //     dom.remove()
-    //   }
-    // }
+    if (theme === 'dark') {
+      const node = document.createElement('link')
+      node.rel = 'stylesheet/less'
+      node.type = 'text/css'
+      node.href = 'assets/themes/default.less'
+      // document.getElementsByTagName('body')[0].appendChild(node)
+      // const style = document.createElement('link')
+      // style.type = 'text/css'
+      // style.rel = 'stylesheet'
+      // style.id = 'dark-theme'
+      // style.innerHTML = this.globalCss
+      // document.body.appendChild(node)
+      // document.getElementsByTagName('body')[0].appendChild(node)
+
+      less.modifyVars({ '@primary-color': 'blue' }).then(() => {
+        this.zone.run(() => this.cdr.detectChanges())
+      })
+      // setTimeout(()=>{
+
+      // },1000)
+    } else {
+      // const dom = document.getElementById('dark-theme')
+      // if (dom) {
+      //   dom.remove()
+      // }
+    }
     // document.body.setAttribute('data-theme-style', theme)
   }
 }

@@ -1,3 +1,6 @@
+@primary-color: red;
+@blue-6:red;
+
 /* stylelint-disable */
 .bezierEasingMixin() {
     @functions: ~`(function() {
@@ -108,8 +111,6 @@
     // resolve error: `ReferenceError: colorPalette is not defined`
     // https://github.com/ant-design/ant-motion/issues/44
     .bezierEasingMixin();
-    
-
 /* stylelint-disable declaration-bang-space-before,no-duplicate-selectors,string-no-newline */
 .tinyColorMixin() {
     @functions: ~`(function() {
@@ -1295,87 +1296,82 @@
     // https://github.com/ant-design/ant-motion/issues/44
     .tinyColorMixin();
     
+    .colorPaletteMixin() {
+        @functions: ~`(function() {
+          var hueStep = 2;
+          var saturationStep = 0.16;
+          var saturationStep2 = 0.05;
+          var brightnessStep1 = 0.05;
+          var brightnessStep2 = 0.15;
+          var lightColorCount = 5;
+          var darkColorCount = 4;
+        
+          var getHue = function(hsv, i, isLight) {
+            var hue;
+            if (hsv.h >= 60 && hsv.h <= 240) {
+              hue = isLight ? hsv.h - hueStep * i : hsv.h + hueStep * i;
+            } else {
+              hue = isLight ? hsv.h + hueStep * i : hsv.h - hueStep * i;
+            }
+            if (hue < 0) {
+              hue += 360;
+            } else if (hue >= 360) {
+              hue -= 360;
+            }
+            return Math.round(hue);
+          };
+          var getSaturation = function(hsv, i, isLight) {
+            var saturation;
+            if (isLight) {
+              saturation = hsv.s - saturationStep * i;
+            } else if (i === darkColorCount) {
+              saturation = hsv.s + saturationStep;
+            } else {
+              saturation = hsv.s + saturationStep2 * i;
+            }
+            if (saturation > 1) {
+              saturation = 1;
+            }
+            if (isLight && i === lightColorCount && saturation > 0.1) {
+              saturation = 0.1;
+            }
+            if (saturation < 0.06) {
+              saturation = 0.06;
+            }
+            return Number(saturation.toFixed(2));
+          };
+          var getValue = function(hsv, i, isLight) {
+            var value;
+            if (isLight) {
+              value = hsv.v + brightnessStep1 * i;
+            }else{
+              value = hsv.v - brightnessStep2 * i
+            }
+            if (value > 1) {
+              value = 1;
+            }
+            return Number(value.toFixed(2))
+          };
+        
+          this.colorPalette = function(color, index) {
+            var isLight = index <= 6;
+            var hsv = tinycolor(color).toHsv();
+            var i = isLight ? lightColorCount + 1 - index : index - lightColorCount - 1;
+            return tinycolor({
+              h: getHue(hsv, i, isLight),
+              s: getSaturation(hsv, i, isLight),
+              v: getValue(hsv, i, isLight),
+            }).toHexString();
+          };
+        })()`;
+        }
+        // It is hacky way to make this function will be compiled preferentially by less
+        // resolve error: `ReferenceError: colorPalette is not defined`
+        // https://github.com/ant-design/ant-motion/issues/44
+        .colorPaletteMixin();
 
 
-
-.colorPaletteMixin() {
-    @functions: ~`(function() {
-      var hueStep = 2;
-      var saturationStep = 0.16;
-      var saturationStep2 = 0.05;
-      var brightnessStep1 = 0.05;
-      var brightnessStep2 = 0.15;
-      var lightColorCount = 5;
-      var darkColorCount = 4;
-    
-      var getHue = function(hsv, i, isLight) {
-        var hue;
-        if (hsv.h >= 60 && hsv.h <= 240) {
-          hue = isLight ? hsv.h - hueStep * i : hsv.h + hueStep * i;
-        } else {
-          hue = isLight ? hsv.h + hueStep * i : hsv.h - hueStep * i;
-        }
-        if (hue < 0) {
-          hue += 360;
-        } else if (hue >= 360) {
-          hue -= 360;
-        }
-        return Math.round(hue);
-      };
-      var getSaturation = function(hsv, i, isLight) {
-        var saturation;
-        if (isLight) {
-          saturation = hsv.s - saturationStep * i;
-        } else if (i === darkColorCount) {
-          saturation = hsv.s + saturationStep;
-        } else {
-          saturation = hsv.s + saturationStep2 * i;
-        }
-        if (saturation > 1) {
-          saturation = 1;
-        }
-        if (isLight && i === lightColorCount && saturation > 0.1) {
-          saturation = 0.1;
-        }
-        if (saturation < 0.06) {
-          saturation = 0.06;
-        }
-        return Number(saturation.toFixed(2));
-      };
-      var getValue = function(hsv, i, isLight) {
-        var value;
-        if (isLight) {
-          value = hsv.v + brightnessStep1 * i;
-        }else{
-          value = hsv.v - brightnessStep2 * i
-        }
-        if (value > 1) {
-          value = 1;
-        }
-        return Number(value.toFixed(2))
-      };
-    
-      this.colorPalette = function(color, index) {
-        var isLight = index <= 6;
-        var hsv = tinycolor(color).toHsv();
-        var i = isLight ? lightColorCount + 1 - index : index - lightColorCount - 1;
-        return tinycolor({
-          h: getHue(hsv, i, isLight),
-          s: getSaturation(hsv, i, isLight),
-          v: getValue(hsv, i, isLight),
-        }).toHexString();
-      };
-    })()`;
-    }
-    // It is hacky way to make this function will be compiled preferentially by less
-    // resolve error: `ReferenceError: colorPalette is not defined`
-    // https://github.com/ant-design/ant-motion/issues/44
-    .colorPaletteMixin();
-
-
-
-
-    
+        
 // color palettes
 @blue-base: #1890ff;
 @blue-1: color(~`colorPalette('@{blue-6}', 1) `);
@@ -1536,3 +1532,2619 @@
 
 @preset-colors: pink, magenta, red, volcano, orange, yellow, gold, cyan, lime, green, blue, geekblue,
   purple;
+
+        
+
+  
+@theme: default;
+
+// The prefix to use on all css classes from ant.
+@ant-prefix: ant;
+
+// An override for the html selector for theme prefixes
+@html-selector: html;
+
+// -------- Colors -----------
+@primary-color: @blue-6;
+@info-color: @primary-color;
+@success-color: @green-6;
+@processing-color: @blue-6;
+@error-color: @red-5;
+@highlight-color: @red-5;
+@warning-color: @gold-6;
+@normal-color: #d9d9d9;
+@white: #fff;
+@black: #000;
+
+// Color used by default to control hover and active backgrounds and for
+// alert info backgrounds.
+@primary-1: color(~`colorPalette('@{primary-color}', 1) `); // replace tint(@primary-color, 90%)
+@primary-2: color(~`colorPalette('@{primary-color}', 2) `); // replace tint(@primary-color, 80%)
+@primary-3: color(~`colorPalette('@{primary-color}', 3) `); // unused
+@primary-4: color(~`colorPalette('@{primary-color}', 4) `); // unused
+@primary-5: color(
+  ~`colorPalette('@{primary-color}', 5) `
+); // color used to control the text color in many active and hover states, replace tint(@primary-color, 20%)
+@primary-6: @primary-color; // color used to control the text color of active buttons, don't use, use @primary-color
+@primary-7: color(~`colorPalette('@{primary-color}', 7) `); // replace shade(@primary-color, 5%)
+@primary-8: color(~`colorPalette('@{primary-color}', 8) `); // unused
+@primary-9: color(~`colorPalette('@{primary-color}', 9) `); // unused
+@primary-10: color(~`colorPalette('@{primary-color}', 10) `); // unused
+
+// Base Scaffolding Variables
+// ---
+
+// Background color for `<body>`
+@body-background: #fff;
+// Base background color for most components
+@component-background: #fff;
+// Popover background color
+@popover-background: @component-background;
+@popover-customize-border-color: @border-color-split;
+@font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+  'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
+  'Noto Color Emoji';
+@code-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+@text-color: fade(@black, 85%);
+@text-color-secondary: fade(@black, 45%);
+@text-color-inverse: @white;
+@icon-color: inherit;
+@icon-color-hover: fade(@black, 75%);
+@heading-color: fade(@black, 85%);
+@text-color-dark: fade(@white, 85%);
+@text-color-secondary-dark: fade(@white, 65%);
+@text-selection-bg: @primary-color;
+@font-variant-base: tabular-nums;
+@font-feature-settings-base: 'tnum';
+@font-size-base: 14px;
+@font-size-lg: @font-size-base + 2px;
+@font-size-sm: 12px;
+@heading-1-size: ceil(@font-size-base * 2.71);
+@heading-2-size: ceil(@font-size-base * 2.14);
+@heading-3-size: ceil(@font-size-base * 1.71);
+@heading-4-size: ceil(@font-size-base * 1.42);
+@heading-5-size: ceil(@font-size-base * 1.14);
+// https://github.com/ant-design/ant-design/issues/20210
+@line-height-base: 1.5715;
+@border-radius-base: 2px;
+@border-radius-sm: @border-radius-base;
+
+// vertical paddings
+@padding-lg: 24px; // containers
+@padding-md: 16px; // small containers and buttons
+@padding-sm: 12px; // Form controls and items
+@padding-xs: 8px; // small items
+@padding-xss: 4px; // more small
+
+// vertical padding for all form controls
+@control-padding-horizontal: @padding-sm;
+@control-padding-horizontal-sm: @padding-xs;
+
+// vertical margins
+@margin-lg: 24px; // containers
+@margin-md: 16px; // small containers and buttons
+@margin-sm: 12px; // Form controls and items
+@margin-xs: 8px; // small items
+@margin-xss: 4px; // more small
+
+// height rules
+@height-base: 32px;
+@height-lg: 40px;
+@height-sm: 24px;
+
+// The background colors for active and hover states for things like
+// list items or table cells.
+@item-active-bg: @primary-1;
+@item-hover-bg: #f5f5f5;
+
+// ICONFONT
+@iconfont-css-prefix: anticon;
+
+// LINK
+@link-color: @primary-color;
+@link-hover-color: color(~`colorPalette('@{link-color}', 5) `);
+@link-active-color: color(~`colorPalette('@{link-color}', 7) `);
+@link-decoration: none;
+@link-hover-decoration: none;
+@link-focus-decoration: none;
+@link-focus-outline: 0;
+
+// Animation
+@ease-base-out: cubic-bezier(0.7, 0.3, 0.1, 1);
+@ease-base-in: cubic-bezier(0.9, 0, 0.3, 0.7);
+@ease-out: cubic-bezier(0.215, 0.61, 0.355, 1);
+@ease-in: cubic-bezier(0.55, 0.055, 0.675, 0.19);
+@ease-in-out: cubic-bezier(0.645, 0.045, 0.355, 1);
+@ease-out-back: cubic-bezier(0.12, 0.4, 0.29, 1.46);
+@ease-in-back: cubic-bezier(0.71, -0.46, 0.88, 0.6);
+@ease-in-out-back: cubic-bezier(0.71, -0.46, 0.29, 1.46);
+@ease-out-circ: cubic-bezier(0.08, 0.82, 0.17, 1);
+@ease-in-circ: cubic-bezier(0.6, 0.04, 0.98, 0.34);
+@ease-in-out-circ: cubic-bezier(0.78, 0.14, 0.15, 0.86);
+@ease-out-quint: cubic-bezier(0.23, 1, 0.32, 1);
+@ease-in-quint: cubic-bezier(0.755, 0.05, 0.855, 0.06);
+@ease-in-out-quint: cubic-bezier(0.86, 0, 0.07, 1);
+
+// Border color
+@border-color-base: hsv(0, 0, 85%); // base border outline a component
+@border-color-split: hsv(0, 0, 94%); // split border inside a component
+@border-color-inverse: @white;
+@border-width-base: 1px; // width of the border for a component
+@border-style-base: solid; // style of a components border
+
+// Outline
+@outline-blur-size: 0;
+@outline-width: 2px;
+@outline-color: @primary-color;
+@outline-fade: 20%;
+
+@background-color-light: hsv(0, 0, 98%); // background of header and selected item
+@background-color-base: hsv(0, 0, 96%); // Default grey background color
+
+// Disabled states
+@disabled-color: fade(#000, 25%);
+@disabled-bg: @background-color-base;
+@disabled-color-dark: fade(#fff, 35%);
+
+// Shadow
+@shadow-color: rgba(0, 0, 0, 0.15);
+@shadow-color-inverse: @component-background;
+@box-shadow-base: @shadow-2;
+@shadow-1-up: 0 -6px 16px -8px rgba(0, 0, 0, 0.08), 0 -9px 28px 0 rgba(0, 0, 0, 0.05),
+  0 -12px 48px 16px rgba(0, 0, 0, 0.03);
+@shadow-1-down: 0 6px 16px -8px rgba(0, 0, 0, 0.08), 0 9px 28px 0 rgba(0, 0, 0, 0.05),
+  0 12px 48px 16px rgba(0, 0, 0, 0.03);
+@shadow-1-left: -6px 0 16px -8px rgba(0, 0, 0, 0.08), -9px 0 28px 0 rgba(0, 0, 0, 0.05),
+  -12px 0 48px 16px rgba(0, 0, 0, 0.03);
+@shadow-1-right: 6px 0 16px -8px rgba(0, 0, 0, 0.08), 9px 0 28px 0 rgba(0, 0, 0, 0.05),
+  12px 0 48px 16px rgba(0, 0, 0, 0.03);
+@shadow-2: 0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 6px 16px 0 rgba(0, 0, 0, 0.08),
+  0 9px 28px 8px rgba(0, 0, 0, 0.05);
+
+// Buttons
+@btn-font-weight: 400;
+@btn-border-radius-base: @border-radius-base;
+@btn-border-radius-sm: @border-radius-base;
+@btn-border-width: @border-width-base;
+@btn-border-style: @border-style-base;
+@btn-shadow: 0 2px 0 rgba(0, 0, 0, 0.015);
+@btn-primary-shadow: 0 2px 0 rgba(0, 0, 0, 0.045);
+@btn-text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.12);
+
+@btn-primary-color: #fff;
+@btn-primary-bg: @primary-color;
+
+@btn-default-color: @text-color;
+@btn-default-bg: @component-background;
+@btn-default-border: @border-color-base;
+
+@btn-danger-color: #fff;
+@btn-danger-bg: @error-color;
+@btn-danger-border: @error-color;
+
+@btn-disable-color: @disabled-color;
+@btn-disable-bg: @disabled-bg;
+@btn-disable-border: @border-color-base;
+
+@btn-default-ghost-color: @component-background;
+@btn-default-ghost-bg: transparent;
+@btn-default-ghost-border: @component-background;
+
+@btn-font-size-lg: @font-size-lg;
+@btn-font-size-sm: @font-size-base;
+@btn-padding-horizontal-base: @padding-md - 1px;
+@btn-padding-horizontal-lg: @btn-padding-horizontal-base;
+@btn-padding-horizontal-sm: @padding-xs - 1px;
+
+@btn-height-base: @height-base;
+@btn-height-lg: @height-lg;
+@btn-height-sm: @height-sm;
+
+@btn-line-height: @line-height-base;
+
+@btn-circle-size: @btn-height-base;
+@btn-circle-size-lg: @btn-height-lg;
+@btn-circle-size-sm: @btn-height-sm;
+
+@btn-square-size: @btn-height-base;
+@btn-square-size-lg: @btn-height-lg;
+@btn-square-size-sm: @btn-height-sm;
+@btn-square-only-icon-size: @font-size-base + 2px;
+@btn-square-only-icon-size-sm: @font-size-base;
+@btn-square-only-icon-size-lg: @btn-font-size-lg + 2px;
+
+@btn-group-border: @primary-5;
+
+@btn-link-hover-bg: transparent;
+@btn-text-hover-bg: rgba(0, 0, 0, 0.018);
+
+// Checkbox
+@checkbox-size: 16px;
+@checkbox-color: @primary-color;
+@checkbox-check-color: #fff;
+@checkbox-check-bg: @checkbox-check-color;
+@checkbox-border-width: @border-width-base;
+@checkbox-group-item-margin-right: 8px;
+
+// Descriptions
+@descriptions-bg: #fafafa;
+@descriptions-title-margin-bottom: 20px;
+@descriptions-default-padding: @padding-md @padding-lg;
+@descriptions-middle-padding: @padding-sm @padding-lg;
+@descriptions-small-padding: @padding-xs @padding-md;
+@descriptions-item-padding-bottom: @padding-md;
+@descriptions-item-trailing-colon: true;
+@descriptions-item-label-colon-margin-right: 8px;
+@descriptions-item-label-colon-margin-left: 2px;
+@descriptions-extra-color: @text-color;
+
+// Divider
+@divider-text-padding: 1em;
+@divider-orientation-margin: 5%;
+@divider-color: rgba(0, 0, 0, 6%);
+
+// Dropdown
+@dropdown-selected-color: @primary-color;
+@dropdown-menu-submenu-disabled-bg: @component-background;
+
+// Empty
+@empty-font-size: @font-size-base;
+
+// Radio
+@radio-size: 16px;
+@radio-top: 0px;
+@radio-dot-color: @primary-color;
+@radio-dot-disabled-color: fade(@black, 20%);
+@radio-solid-checked-color: @component-background;
+
+// Radio buttons
+@radio-button-bg: @btn-default-bg;
+@radio-button-checked-bg: @btn-default-bg;
+@radio-button-color: @btn-default-color;
+@radio-button-hover-color: @primary-5;
+@radio-button-active-color: @primary-7;
+@radio-disabled-button-checked-bg: tint(@black, 90%);
+@radio-disabled-button-checked-color: @disabled-color;
+@radio-wrapper-margin-right: 8px;
+
+// Media queries breakpoints
+// Extra small screen / phone
+@screen-xs: 480px;
+@screen-xs-min: @screen-xs;
+
+// Small screen / tablet
+@screen-sm: 576px;
+@screen-sm-min: @screen-sm;
+
+// Medium screen / desktop
+@screen-md: 768px;
+@screen-md-min: @screen-md;
+
+// Large screen / wide desktop
+@screen-lg: 992px;
+@screen-lg-min: @screen-lg;
+
+// Extra large screen / full hd
+@screen-xl: 1200px;
+@screen-xl-min: @screen-xl;
+
+// Extra extra large screen / large desktop
+@screen-xxl: 1600px;
+@screen-xxl-min: @screen-xxl;
+
+// provide a maximum
+@screen-xs-max: (@screen-sm-min - 1px);
+@screen-sm-max: (@screen-md-min - 1px);
+@screen-md-max: (@screen-lg-min - 1px);
+@screen-lg-max: (@screen-xl-min - 1px);
+@screen-xl-max: (@screen-xxl-min - 1px);
+
+// Grid system
+@grid-columns: 24;
+
+// Layout
+@layout-body-background: #f0f2f5;
+@layout-header-background: #001529;
+@layout-header-height: 64px;
+@layout-header-padding: 0 50px;
+@layout-header-color: @text-color;
+@layout-footer-padding: 24px 50px;
+@layout-footer-background: @layout-body-background;
+@layout-sider-background: @layout-header-background;
+@layout-trigger-height: 48px;
+@layout-trigger-background: #002140;
+@layout-trigger-color: #fff;
+@layout-zero-trigger-width: 36px;
+@layout-zero-trigger-height: 42px;
+// Layout light theme
+@layout-sider-background-light: #fff;
+@layout-trigger-background-light: #fff;
+@layout-trigger-color-light: @text-color;
+
+// z-index list, order by `z-index`
+@zindex-badge: auto;
+@zindex-table-fixed: 2;
+@zindex-affix: 10;
+@zindex-back-top: 10;
+@zindex-picker-panel: 10;
+@zindex-popup-close: 10;
+@zindex-modal: 1000;
+@zindex-modal-mask: 1000;
+@zindex-message: 1010;
+@zindex-notification: 1010;
+@zindex-popover: 1030;
+@zindex-dropdown: 1050;
+@zindex-picker: 1050;
+@zindex-popoconfirm: 1060;
+@zindex-tooltip: 1070;
+@zindex-image: 1080;
+
+// Animation
+@animation-duration-slow: 0.3s; // Modal
+@animation-duration-base: 0.2s;
+@animation-duration-fast: 0.1s; // Tooltip
+
+//CollapsePanel
+@collapse-panel-border-radius: @border-radius-base;
+
+//Dropdown
+@dropdown-menu-bg: @component-background;
+@dropdown-vertical-padding: 5px;
+@dropdown-edge-child-vertical-padding: 4px;
+@dropdown-font-size: @font-size-base;
+@dropdown-line-height: 22px;
+
+// Form
+// ---
+@label-required-color: @highlight-color;
+@label-color: @heading-color;
+@form-warning-input-bg: @input-bg;
+@form-item-margin-bottom: 24px;
+@form-item-trailing-colon: true;
+@form-vertical-label-padding: 0 0 8px;
+@form-vertical-label-margin: 0;
+@form-item-label-font-size: @font-size-base;
+@form-item-label-height: @input-height-base;
+@form-item-label-colon-margin-right: 8px;
+@form-item-label-colon-margin-left: 2px;
+@form-error-input-bg: @input-bg;
+
+// Input
+// ---
+@input-height-base: @height-base;
+@input-height-lg: @height-lg;
+@input-height-sm: @height-sm;
+@input-padding-horizontal: @control-padding-horizontal - 1px;
+@input-padding-horizontal-base: @input-padding-horizontal;
+@input-padding-horizontal-sm: @control-padding-horizontal-sm - 1px;
+@input-padding-horizontal-lg: @input-padding-horizontal;
+@input-padding-vertical-base: max(
+  round((@input-height-base - @font-size-base * @line-height-base) / 2 * 10) / 10 -
+    @border-width-base,
+  3px
+);
+@input-padding-vertical-sm: max(
+  round((@input-height-sm - @font-size-base * @line-height-base) / 2 * 10) / 10 - @border-width-base,
+  0
+);
+@input-padding-vertical-lg: ceil((@input-height-lg - @font-size-lg * @line-height-base) / 2 * 10) /
+  10 - @border-width-base;
+@input-placeholder-color: hsv(0, 0, 75%);
+@input-color: @text-color;
+@input-icon-color: @input-color;
+@input-border-color: @border-color-base;
+@input-bg: @component-background;
+@input-number-hover-border-color: @input-hover-border-color;
+@input-number-handler-active-bg: #f4f4f4;
+@input-number-handler-hover-bg: @primary-5;
+@input-number-handler-bg: @component-background;
+@input-number-handler-border-color: @border-color-base;
+@input-addon-bg: @background-color-light;
+@input-hover-border-color: @primary-5;
+@input-disabled-bg: @disabled-bg;
+@input-outline-offset: 0 0;
+@input-icon-hover-color: fade(@black, 85%);
+@input-disabled-color: @disabled-color;
+
+// Mentions
+// ---
+@mentions-dropdown-bg: @component-background;
+@mentions-dropdown-menu-item-hover-bg: @mentions-dropdown-bg;
+
+// Select
+// ---
+@select-border-color: @border-color-base;
+@select-item-selected-color: @text-color;
+@select-item-selected-font-weight: 600;
+@select-dropdown-bg: @component-background;
+@select-item-selected-bg: @primary-1;
+@select-item-active-bg: @item-hover-bg;
+@select-dropdown-vertical-padding: @dropdown-vertical-padding;
+@select-dropdown-font-size: @dropdown-font-size;
+@select-dropdown-line-height: @dropdown-line-height;
+@select-dropdown-height: 32px;
+@select-background: @component-background;
+@select-clear-background: @select-background;
+@select-selection-item-bg: @background-color-base;
+@select-selection-item-border-color: @border-color-split;
+@select-single-item-height-lg: 40px;
+@select-multiple-item-height: @input-height-base - @input-padding-vertical-base * 2; // Normal 24px
+@select-multiple-item-height-lg: 32px;
+@select-multiple-item-spacing-half: ceil(@input-padding-vertical-base / 2);
+@select-multiple-disabled-background: @input-disabled-bg;
+@select-multiple-item-disabled-color: #bfbfbf;
+@select-multiple-item-disabled-border-color: @select-border-color;
+
+// Cascader
+// ---
+@cascader-bg: @component-background;
+@cascader-item-selected-bg: @primary-1;
+@cascader-menu-bg: @component-background;
+@cascader-menu-border-color-split: @border-color-split;
+
+// Cascader
+// ----
+@cascader-dropdown-vertical-padding: @dropdown-vertical-padding;
+@cascader-dropdown-edge-child-vertical-padding: @dropdown-edge-child-vertical-padding;
+@cascader-dropdown-font-size: @dropdown-font-size;
+@cascader-dropdown-line-height: @dropdown-line-height;
+
+// Anchor
+// ---
+@anchor-bg: @component-background;
+@anchor-border-color: @border-color-split;
+@anchor-link-top: 7px;
+@anchor-link-left: 16px;
+@anchor-link-padding: @anchor-link-top 0 @anchor-link-top @anchor-link-left;
+
+// Tooltip
+// ---
+// Tooltip max width
+@tooltip-max-width: 250px;
+// Tooltip text color
+@tooltip-color: #fff;
+// Tooltip background color
+@tooltip-bg: rgba(0, 0, 0, 0.75);
+// Tooltip arrow width
+@tooltip-arrow-width: 5px;
+// Tooltip distance with trigger
+@tooltip-distance: @tooltip-arrow-width - 1px + 4px;
+// Tooltip arrow color
+@tooltip-arrow-color: @tooltip-bg;
+
+// Popover
+// ---
+// Popover body background color
+@popover-bg: @component-background;
+// Popover text color
+@popover-color: @text-color;
+// Popover maximum width
+@popover-min-width: 177px;
+@popover-min-height: 32px;
+// Popover arrow width
+@popover-arrow-width: 6px;
+// Popover arrow color
+@popover-arrow-color: @popover-bg;
+// Popover outer arrow width
+// Popover outer arrow color
+@popover-arrow-outer-color: @popover-bg;
+// Popover distance with trigger
+@popover-distance: @popover-arrow-width + 4px;
+@popover-padding-horizontal: @padding-md;
+
+// Modal
+// --
+@modal-header-padding-vertical: @padding-md;
+@modal-header-padding-horizontal: @padding-lg;
+@modal-body-padding: @padding-lg;
+@modal-header-bg: @component-background;
+@modal-header-padding: @modal-header-padding-vertical @modal-header-padding-horizontal;
+@modal-header-border-width: @border-width-base;
+@modal-header-border-style: @border-style-base;
+@modal-header-title-line-height: 22px;
+@modal-header-title-font-size: @font-size-lg;
+@modal-header-border-color-split: @border-color-split;
+@modal-header-close-size: 56px;
+@modal-content-bg: @component-background;
+@modal-heading-color: @heading-color;
+@modal-close-color: @text-color-secondary;
+@modal-footer-bg: transparent;
+@modal-footer-border-color-split: @border-color-split;
+@modal-footer-border-style: @border-style-base;
+@modal-footer-padding-vertical: 10px;
+@modal-footer-padding-horizontal: 16px;
+@modal-footer-border-width: @border-width-base;
+@modal-mask-bg: fade(@black, 45%);
+@modal-confirm-body-padding: 32px 32px 24px;
+
+// Progress
+// --
+@progress-default-color: @processing-color;
+@progress-remaining-color: @background-color-base;
+@progress-text-color: @text-color;
+@progress-radius: 100px;
+@progress-steps-item-bg: #f3f3f3;
+@progress-text-font-size: 1em;
+@progress-circle-text-font-size: 1em;
+// Menu
+// ---
+@menu-inline-toplevel-item-height: 40px;
+@menu-item-height: 40px;
+@menu-item-group-height: @line-height-base;
+@menu-collapsed-width: 80px;
+@menu-bg: @component-background;
+@menu-popup-bg: @component-background;
+@menu-item-color: @text-color;
+@menu-highlight-color: @primary-color;
+@menu-highlight-danger-color: @error-color;
+@menu-item-active-bg: @primary-1;
+@menu-item-active-danger-bg: @red-1;
+@menu-item-active-border-width: 3px;
+@menu-item-group-title-color: @text-color-secondary;
+@menu-item-vertical-margin: 4px;
+@menu-item-font-size: @font-size-base;
+@menu-item-boundary-margin: 8px;
+@menu-item-padding: 0 20px;
+@menu-horizontal-line-height: 46px;
+@menu-icon-margin-right: 10px;
+@menu-icon-size: @menu-item-font-size;
+@menu-icon-size-lg: @font-size-lg;
+@menu-item-group-title-font-size: @menu-item-font-size;
+
+// dark theme
+@menu-dark-color: @text-color-secondary-dark;
+@menu-dark-danger-color: @error-color;
+@menu-dark-bg: @layout-header-background;
+@menu-dark-arrow-color: #fff;
+@menu-dark-submenu-bg: #000c17;
+@menu-dark-highlight-color: #fff;
+@menu-dark-item-active-bg: @primary-color;
+@menu-dark-item-active-danger-bg: @error-color;
+@menu-dark-selected-item-icon-color: @white;
+@menu-dark-selected-item-text-color: @white;
+@menu-dark-item-hover-bg: transparent;
+// Spin
+// ---
+@spin-dot-size-sm: 14px;
+@spin-dot-size: 20px;
+@spin-dot-size-lg: 32px;
+
+// Table
+// --
+@table-bg: @component-background;
+@table-header-bg: @background-color-light;
+@table-header-color: @heading-color;
+@table-header-sort-bg: @background-color-base;
+@table-body-sort-bg: #fafafa;
+@table-row-hover-bg: @background-color-light;
+@table-selected-row-color: inherit;
+@table-selected-row-bg: @primary-1;
+@table-body-selected-sort-bg: @table-selected-row-bg;
+@table-selected-row-hover-bg: darken(@table-selected-row-bg, 2%);
+@table-expanded-row-bg: #fbfbfb;
+@table-padding-vertical: 16px;
+@table-padding-horizontal: 16px;
+@table-padding-vertical-md: @table-padding-vertical * 3 / 4;
+@table-padding-horizontal-md: @table-padding-horizontal / 2;
+@table-padding-vertical-sm: @table-padding-vertical / 2;
+@table-padding-horizontal-sm: @table-padding-horizontal / 2;
+@table-border-radius-base: @border-radius-base;
+@table-footer-bg: @background-color-light;
+@table-footer-color: @heading-color;
+@table-header-bg-sm: @table-header-bg;
+@table-font-size: @font-size-base;
+@table-font-size-md: @table-font-size;
+@table-font-size-sm: @table-font-size;
+// Sorter
+// Legacy: `table-header-sort-active-bg` is used for hover not real active
+@table-header-sort-active-bg: darken(@table-header-bg, 3%);
+// Filter
+@table-header-filter-active-bg: darken(@table-header-sort-active-bg, 5%);
+@table-filter-btns-bg: inherit;
+@table-filter-dropdown-bg: @component-background;
+@table-expand-icon-bg: @component-background;
+@table-selection-column-width: 60px;
+@table-selection-extra-right: 0;
+// Sticky
+@table-sticky-scroll-bar-bg: fade(#000, 35%);
+@table-sticky-scroll-bar-radius: 4px;
+
+// Tag
+// --
+@tag-default-bg: @background-color-light;
+@tag-default-color: @text-color;
+@tag-font-size: @font-size-sm;
+@tag-line-height: 20px;
+
+// TimePicker
+// ---
+@picker-bg: @component-background;
+@picker-basic-cell-hover-color: @item-hover-bg;
+@picker-basic-cell-active-with-range-color: @primary-1;
+@picker-basic-cell-hover-with-range-color: lighten(@primary-color, 35%);
+@picker-basic-cell-disabled-bg: @disabled-bg;
+@picker-border-color: @border-color-split;
+@picker-date-hover-range-border-color: lighten(@primary-color, 20%);
+@picker-date-hover-range-color: @picker-basic-cell-hover-with-range-color;
+@picker-time-panel-column-width: 56px;
+@picker-time-panel-column-height: 224px;
+@picker-time-panel-cell-height: 28px;
+@picker-panel-cell-height: 24px;
+@picker-panel-cell-width: 36px;
+@picker-text-height: 40px;
+@picker-panel-without-time-cell-height: 66px;
+
+// Calendar
+// ---
+@calendar-bg: @component-background;
+@calendar-input-bg: @input-bg;
+@calendar-border-color: @border-color-inverse;
+@calendar-item-active-bg: @item-active-bg;
+@calendar-full-bg: @calendar-bg;
+@calendar-full-panel-bg: @calendar-full-bg;
+
+// Carousel
+// ---
+@carousel-dot-width: 16px;
+@carousel-dot-height: 3px;
+@carousel-dot-active-width: 24px;
+
+// Badge
+// ---
+@badge-height: 20px;
+@badge-height-sm: 14px;
+@badge-dot-size: 6px;
+@badge-font-size: @font-size-sm;
+@badge-font-size-sm: @font-size-sm;
+@badge-font-weight: normal;
+@badge-status-size: 6px;
+@badge-text-color: @component-background;
+@badge-color: @highlight-color;
+
+// Rate
+// ---
+@rate-star-color: @yellow-6;
+@rate-star-bg: @border-color-split;
+@rate-star-size: 20px;
+@rate-star-hover-scale: scale(1.1);
+
+// Card
+// ---
+@card-head-color: @heading-color;
+@card-head-background: transparent;
+@card-head-font-size: @font-size-lg;
+@card-head-font-size-sm: @font-size-base;
+@card-head-padding: 16px;
+@card-head-padding-sm: @card-head-padding / 2;
+@card-head-height: 48px;
+@card-head-height-sm: 36px;
+@card-inner-head-padding: 12px;
+@card-padding-base: 24px;
+@card-padding-base-sm: @card-padding-base / 2;
+@card-actions-background: @component-background;
+@card-actions-li-margin: 12px 0;
+@card-skeleton-bg: #cfd8dc;
+@card-background: @component-background;
+@card-shadow: 0 1px 2px -2px rgba(0, 0, 0, 0.16), 0 3px 6px 0 rgba(0, 0, 0, 0.12),
+  0 5px 12px 4px rgba(0, 0, 0, 0.09);
+@card-radius: @border-radius-base;
+@card-head-tabs-margin-bottom: -17px;
+@card-head-extra-color: @text-color;
+
+// Comment
+// ---
+@comment-bg: inherit;
+@comment-padding-base: @padding-md 0;
+@comment-nest-indent: 44px;
+@comment-font-size-base: @font-size-base;
+@comment-font-size-sm: @font-size-sm;
+@comment-author-name-color: @text-color-secondary;
+@comment-author-time-color: #ccc;
+@comment-action-color: @text-color-secondary;
+@comment-action-hover-color: #595959;
+@comment-actions-margin-bottom: inherit;
+@comment-actions-margin-top: @margin-sm;
+@comment-content-detail-p-margin-bottom: inherit;
+
+// Tabs
+// ---
+@tabs-card-head-background: @background-color-light;
+@tabs-card-height: 40px;
+@tabs-card-active-color: @primary-color;
+@tabs-card-horizontal-padding: (@tabs-card-height - floor(@font-size-base * @line-height-base)) / 2 -
+  @border-width-base @padding-md;
+@tabs-card-horizontal-padding-sm: 6px @padding-md;
+@tabs-card-horizontal-padding-lg: 7px @padding-md 6px;
+@tabs-title-font-size: @font-size-base;
+@tabs-title-font-size-lg: @font-size-lg;
+@tabs-title-font-size-sm: @font-size-base;
+@tabs-ink-bar-color: @primary-color;
+@tabs-bar-margin: 0 0 @margin-md 0;
+@tabs-horizontal-margin: 0 32px 0 0;
+@tabs-horizontal-margin-rtl: 0 0 0 32px;
+@tabs-horizontal-padding: @padding-sm 0;
+@tabs-horizontal-padding-lg: @padding-md 0;
+@tabs-horizontal-padding-sm: @padding-xs 0;
+@tabs-vertical-padding: @padding-xs @padding-lg;
+@tabs-vertical-margin: 0 0 @margin-md 0;
+@tabs-scrolling-size: 32px;
+@tabs-highlight-color: @primary-color;
+@tabs-hover-color: @primary-5;
+@tabs-active-color: @primary-7;
+@tabs-card-gutter: 2px;
+@tabs-card-tab-active-border-top: 2px solid transparent;
+
+// BackTop
+// ---
+@back-top-color: #fff;
+@back-top-bg: @text-color-secondary;
+@back-top-hover-bg: @text-color;
+
+// Avatar
+// ---
+@avatar-size-base: 32px;
+@avatar-size-lg: 40px;
+@avatar-size-sm: 24px;
+@avatar-font-size-base: 18px;
+@avatar-font-size-lg: 24px;
+@avatar-font-size-sm: 14px;
+@avatar-bg: #ccc;
+@avatar-color: #fff;
+@avatar-border-radius: @border-radius-base;
+@avatar-group-overlapping: -8px;
+@avatar-group-space: 3px;
+@avatar-group-border-color: #fff;
+
+// Switch
+// ---
+@switch-height: 22px;
+@switch-sm-height: 16px;
+@switch-min-width: 44px;
+@switch-sm-min-width: 28px;
+@switch-disabled-opacity: 0.4;
+@switch-color: @primary-color;
+@switch-bg: @component-background;
+@switch-shadow-color: fade(#00230b, 20%);
+@switch-padding: 2px;
+@switch-inner-margin-min: ceil(@switch-height * 0.3);
+@switch-inner-margin-max: ceil(@switch-height * 1.1);
+@switch-sm-inner-margin-min: ceil(@switch-sm-height * 0.3);
+@switch-sm-inner-margin-max: ceil(@switch-sm-height * 1.1);
+
+// Pagination
+// ---
+@pagination-item-bg: @component-background;
+@pagination-item-size: @height-base;
+@pagination-item-size-sm: 24px;
+@pagination-font-family: @font-family;
+@pagination-font-weight-active: 500;
+@pagination-item-bg-active: @component-background;
+@pagination-item-link-bg: @component-background;
+@pagination-item-disabled-color-active: @white;
+@pagination-item-disabled-bg-active: darken(@disabled-bg, 10%);
+@pagination-item-input-bg: @component-background;
+@pagination-mini-options-size-changer-top: 0px;
+
+// PageHeader
+// ---
+@page-header-padding: @padding-lg;
+@page-header-padding-vertical: @padding-md;
+@page-header-padding-breadcrumb: @padding-sm;
+@page-header-content-padding-vertical: @padding-sm;
+@page-header-back-color: #000;
+@page-header-ghost-bg: inherit;
+@page-header-heading-title: @heading-4-size;
+@page-header-heading-sub-title: 14px;
+@page-header-tabs-tab-font-size: 16px;
+
+// Breadcrumb
+// ---
+@breadcrumb-base-color: @text-color-secondary;
+@breadcrumb-last-item-color: @text-color;
+@breadcrumb-font-size: @font-size-base;
+@breadcrumb-icon-font-size: @font-size-base;
+@breadcrumb-link-color: @text-color-secondary;
+@breadcrumb-link-color-hover: @primary-5;
+@breadcrumb-separator-color: @text-color-secondary;
+@breadcrumb-separator-margin: 0 @padding-xs;
+
+// Slider
+// ---
+@slider-margin: 10px 6px 10px;
+@slider-rail-background-color: @background-color-base;
+@slider-rail-background-color-hover: #e1e1e1;
+@slider-track-background-color: @primary-3;
+@slider-track-background-color-hover: @primary-4;
+@slider-handle-border-width: 2px;
+@slider-handle-background-color: @component-background;
+@slider-handle-color: @primary-3;
+@slider-handle-color-hover: @primary-4;
+@slider-handle-color-focus: tint(@primary-color, 20%);
+@slider-handle-color-focus-shadow: fade(@primary-color, 12%);
+@slider-handle-color-tooltip-open: @primary-color;
+@slider-handle-size: 14px;
+@slider-handle-margin-top: -5px;
+@slider-handle-shadow: 0;
+@slider-dot-border-color: @border-color-split;
+@slider-dot-border-color-active: tint(@primary-color, 50%);
+@slider-disabled-color: @disabled-color;
+@slider-disabled-background-color: @component-background;
+
+// Tree
+// ---
+@tree-bg: @component-background;
+@tree-title-height: 24px;
+@tree-child-padding: 18px;
+@tree-directory-selected-color: #fff;
+@tree-directory-selected-bg: @primary-color;
+@tree-node-hover-bg: @item-hover-bg;
+@tree-node-selected-bg: @primary-2;
+
+// Collapse
+// ---
+@collapse-header-padding: @padding-sm @padding-md;
+@collapse-header-padding-extra: 40px;
+@collapse-header-bg: @background-color-light;
+@collapse-content-padding: @padding-md;
+@collapse-content-bg: @component-background;
+@collapse-header-arrow-left: 16px;
+
+// Skeleton
+// ---
+@skeleton-color: #f2f2f2;
+@skeleton-to-color: shade(@skeleton-color, 5%);
+@skeleton-paragraph-margin-top: 28px;
+@skeleton-paragraph-li-margin-top: @margin-md;
+@skeleton-paragraph-li-height: 16px;
+@skeleton-title-height: 16px;
+@skeleton-title-paragraph-margin-top: @margin-lg;
+
+// Transfer
+// ---
+@transfer-header-height: 40px;
+@transfer-item-height: @height-base;
+@transfer-disabled-bg: @disabled-bg;
+@transfer-list-height: 200px;
+@transfer-item-hover-bg: @item-hover-bg;
+@transfer-item-padding-vertical: 6px;
+@transfer-list-search-icon-top: 12px;
+
+// Message
+// ---
+@message-notice-content-padding: 10px 16px;
+@message-notice-content-bg: @component-background;
+// Motion
+// ---
+@wave-animation-width: 6px;
+
+// Alert
+// ---
+@alert-success-border-color: ~`colorPalette('@{success-color}', 3) `;
+@alert-success-bg-color: ~`colorPalette('@{success-color}', 1) `;
+@alert-success-icon-color: @success-color;
+@alert-info-border-color: ~`colorPalette('@{info-color}', 3) `;
+@alert-info-bg-color: ~`colorPalette('@{info-color}', 1) `;
+@alert-info-icon-color: @info-color;
+@alert-warning-border-color: ~`colorPalette('@{warning-color}', 3) `;
+@alert-warning-bg-color: ~`colorPalette('@{warning-color}', 1) `;
+@alert-warning-icon-color: @warning-color;
+@alert-error-border-color: ~`colorPalette('@{error-color}', 3) `;
+@alert-error-bg-color: ~`colorPalette('@{error-color}', 1) `;
+@alert-error-icon-color: @error-color;
+@alert-message-color: @heading-color;
+@alert-text-color: @text-color;
+@alert-close-color: @text-color-secondary;
+@alert-close-hover-color: @icon-color-hover;
+@alert-no-icon-padding-vertical: @padding-xs;
+@alert-with-description-no-icon-padding-vertical: @padding-md - 1px;
+@alert-with-description-padding-vertical: @padding-md - 1px;
+@alert-with-description-padding: @alert-with-description-padding-vertical 15px
+  @alert-with-description-no-icon-padding-vertical @alert-with-description-icon-size * 2 +
+  @alert-with-description-padding-vertical;
+@alert-icon-top: 8px + @font-size-base * @line-height-base / 2 - @font-size-base / 2;
+@alert-with-description-icon-size: 24px;
+@alert-with-description-icon-top: @alert-with-description-padding-vertical;
+
+// List
+// ---
+@list-header-background: transparent;
+@list-footer-background: transparent;
+@list-empty-text-padding: @padding-md;
+@list-item-padding: @padding-sm 0;
+@list-item-padding-sm: @padding-xs @padding-md;
+@list-item-padding-lg: 16px 24px;
+@list-item-meta-margin-bottom: @padding-md;
+@list-item-meta-avatar-margin-right: @padding-md;
+@list-item-meta-title-margin-bottom: @padding-sm;
+@list-customize-card-bg: @component-background;
+@list-item-meta-description-font-size: @font-size-base;
+
+// Statistic
+// ---
+@statistic-title-font-size: @font-size-base;
+@statistic-content-font-size: 24px;
+@statistic-unit-font-size: 16px;
+@statistic-font-family: @font-family;
+
+// Drawer
+// ---
+@drawer-header-padding: @padding-md @padding-lg;
+@drawer-body-padding: @padding-lg;
+@drawer-bg: @component-background;
+@drawer-footer-padding-vertical: @modal-footer-padding-vertical;
+@drawer-footer-padding-horizontal: @modal-footer-padding-horizontal;
+@drawer-header-close-size: 56px;
+
+// Timeline
+// ---
+@timeline-width: 2px;
+@timeline-color: @border-color-split;
+@timeline-dot-border-width: 2px;
+@timeline-dot-color: @primary-color;
+@timeline-dot-bg: @component-background;
+@timeline-item-padding-bottom: 20px;
+
+// Typography
+// ---
+@typography-title-font-weight: 600;
+@typography-title-margin-top: 1.2em;
+@typography-title-margin-bottom: 0.5em;
+
+// Upload
+// ---
+@upload-actions-color: @text-color-secondary;
+
+// Steps
+// ---
+@process-tail-color: @border-color-split;
+@steps-nav-arrow-color: fade(@black, 25%);
+@steps-background: @component-background;
+@steps-icon-size: 32px;
+@steps-icon-custom-size: @steps-icon-size;
+@steps-icon-custom-top: 0px;
+@steps-icon-custom-font-size: 24px;
+@steps-icon-top: -1px;
+@steps-icon-font-size: @font-size-lg;
+@steps-icon-margin: 0 8px 0 0;
+@steps-title-line-height: @height-base;
+@steps-small-icon-size: 24px;
+@steps-small-icon-margin: 0 8px 0 0;
+@steps-dot-size: 8px;
+@steps-dot-top: 2px;
+@steps-current-dot-size: 10px;
+@steps-desciption-max-width: 140px;
+@steps-nav-content-max-width: auto;
+@steps-vertical-icon-width: 16px;
+@steps-vertical-tail-width: 16px;
+@steps-vertical-tail-width-sm: 12px;
+
+// Notification
+// ---
+@notification-bg: @component-background;
+@notification-padding-vertical: 16px;
+@notification-padding-horizontal: 24px;
+
+//  Result
+// ---
+@result-title-font-size: 24px;
+@result-subtitle-font-size: @font-size-base;
+@result-icon-font-size: 72px;
+@result-extra-margin: 24px 0 0 0;
+
+// Image
+// ---
+@image-size-base: 48px;
+@image-font-size-base: 24px;
+@image-bg: #f5f5f5;
+@image-color: #fff;
+@image-preview-operation-size: 18px;
+@image-preview-operation-color: @text-color-dark;
+@image-preview-operation-disabled-color: fade(@image-preview-operation-color, 45%);
+
+    // Sizing shortcuts
+
+.size(@width; @height) {
+    width: @width;
+    height: @height;
+  }
+  
+  .square(@size) {
+    .size(@size; @size);
+  }
+  
+
+  // Compatibility for browsers.
+
+// Placeholder text
+.placeholder(@color: @input-placeholder-color) {
+    // Firefox
+    &::-moz-placeholder {
+      opacity: 1; // Override Firefox's unusual default opacity; see https://github.com/twbs/bootstrap/pull/11526
+    }
+  
+    &::placeholder {
+      color: @color;
+    }
+  
+    &:placeholder-shown {
+      text-overflow: ellipsis;
+    }
+  }
+
+  // mixins for clearfix
+// ------------------------
+.clearfix() {
+    // https://github.com/ant-design/ant-design/issues/21301#issuecomment-583955229
+    &::before {
+      display: table;
+      content: '';
+    }
+    &::after {
+      // https://github.com/ant-design/ant-design/issues/21864
+      display: table;
+      clear: both;
+      content: '';
+    }
+  }
+
+
+  .iconfont-mixin() {
+    display: inline-block;
+    color: @icon-color;
+    font-style: normal;
+    line-height: 0;
+    text-align: center;
+    text-transform: none;
+    vertical-align: -0.125em; // for SVG icon, see https://blog.prototypr.io/align-svg-icons-to-text-and-say-goodbye-to-font-icons-d44b3d7b26b4
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  
+    > * {
+      line-height: 1;
+    }
+  
+    svg {
+      display: inline-block;
+    }
+  
+    &::before {
+      display: none; // dont display old icon.
+    }
+  
+    & &-icon {
+      display: block;
+    }
+  }
+  
+  // for iconfont font size
+  // fix chrome 12px bug
+  .iconfont-size-under-12px(@size) {
+    display: inline-block;
+    font-size: @size;
+  }
+  
+  
+
+.motion-common(@duration: @animation-duration-base) {
+  animation-duration: @duration;
+  animation-fill-mode: both;
+}
+
+.motion-common-leave(@duration: @animation-duration-base) {
+  animation-duration: @duration;
+  animation-fill-mode: both;
+}
+
+.make-motion(@className, @keyframeName, @duration: @animation-duration-base) {
+  .@{className}-enter,
+  .@{className}-appear {
+    .motion-common(@duration);
+
+    animation-play-state: paused;
+  }
+  .@{className}-leave {
+    .motion-common-leave(@duration);
+
+    animation-play-state: paused;
+  }
+  .@{className}-enter.@{className}-enter-active,
+  .@{className}-appear.@{className}-appear-active {
+    animation-name: ~'@{keyframeName}In';
+    animation-play-state: running;
+  }
+  .@{className}-leave.@{className}-leave-active {
+    animation-name: ~'@{keyframeName}Out';
+    animation-play-state: running;
+    pointer-events: none;
+  }
+}
+
+  
+
+.reset-component() {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    color: @text-color;
+    font-size: @font-size-base;
+    font-variant: @font-variant-base;
+    line-height: @line-height-base;
+    list-style: none;
+    font-feature-settings: @font-feature-settings-base;
+  }
+  
+  
+.operation-unit() {
+    color: @link-color;
+    text-decoration: none;
+    outline: none;
+    cursor: pointer;
+    transition: color 0.3s;
+  
+    &:focus,
+    &:hover {
+      color: @link-hover-color;
+    }
+  
+    &:active {
+      color: @link-active-color;
+    }
+  }
+  
+
+  // =============== Common ===============
+.typography-paragraph() {
+    margin-bottom: 1em;
+  }
+  
+  .typography-title(@fontSize; @fontWeight; @lineHeight; @headingColor; @headingMarginBottom;) {
+    margin-bottom: @headingMarginBottom;
+    color: @headingColor;
+    font-weight: @fontWeight;
+    font-size: @fontSize;
+    line-height: @lineHeight;
+  }
+  
+  .typography-title-1() {
+    .typography-title(
+      @heading-1-size,
+      @typography-title-font-weight,
+      1.23,
+      @heading-color,
+      @typography-title-margin-bottom
+    );
+  }
+  .typography-title-2() {
+    .typography-title(
+      @heading-2-size,
+      @typography-title-font-weight,
+      1.35,
+      @heading-color,
+      @typography-title-margin-bottom
+    );
+  }
+  .typography-title-3() {
+    .typography-title(
+      @heading-3-size,
+      @typography-title-font-weight,
+      1.35,
+      @heading-color,
+      @typography-title-margin-bottom
+    );
+  }
+  .typography-title-4() {
+    .typography-title(
+      @heading-4-size,
+      @typography-title-font-weight,
+      1.4,
+      @heading-color,
+      @typography-title-margin-bottom
+    );
+  }
+  .typography-title-5() {
+    .typography-title(
+      @heading-5-size,
+      @typography-title-font-weight,
+      1.5,
+      @heading-color,
+      @typography-title-margin-bottom
+    );
+  }
+
+
+  // customize dark components background in popover containers(like Modal, Drawer, Card, Popover, Popconfirm, Notification, ...)
+// for dark theme
+.popover-customize-bg(@containerClass, @background: @popover-background, @prefix: @ant-prefix) when (@theme = dark) {
+    @picker-prefix-cls: ~'@{prefix}-picker';
+    @slider-prefix-cls: ~'@{prefix}-slider';
+    @anchor-prefix-cls: ~'@{prefix}-anchor';
+    @collapse-prefix-cls: ~'@{prefix}-collapse';
+    @tab-prefix-cls: ~'@{prefix}-tabs';
+    @timeline-prefix-cls: ~'@{prefix}-timeline';
+    @tree-prefix-cls: ~'@{prefix}-tree';
+    @card-prefix-cls: ~'@{prefix}-card';
+    @badge-prefix-cls: ~'@{prefix}-badge';
+    @transfer-prefix-cls: ~'@{prefix}-transfer';
+    @calendar-prefix-cls: ~'@{prefix}-picker-calendar';
+    @calendar-picker-prefix-cls: ~'@{prefix}-picker';
+    @table-prefix-cls: ~'@{prefix}-table';
+  
+    @popover-border: @border-width-base @border-style-base @popover-customize-border-color;
+  
+    .@{containerClass} {
+      .@{picker-prefix-cls}-clear, .@{slider-prefix-cls}-handle, .@{anchor-prefix-cls}-wrapper, .@{collapse-prefix-cls}-content, .@{timeline-prefix-cls}-item-head, .@{card-prefix-cls} {
+        background-color: @background;
+      }
+  
+      .@{transfer-prefix-cls} {
+        &-list {
+          &-header {
+            background: @background;
+            border-bottom: @popover-border;
+          }
+          &-content-item:not(.@{transfer-prefix-cls}-list-content-item-disabled):hover {
+            background-color: @item-hover-bg;
+          }
+        }
+      }
+  
+      tr.@{table-prefix-cls}-expanded-row {
+        &,
+        &:hover {
+          > td {
+            background: #272727;
+          }
+        }
+      }
+      .@{table-prefix-cls}.@{table-prefix-cls}-small {
+        thead {
+          > tr {
+            > th {
+              background-color: @background;
+              border-bottom: @popover-border;
+            }
+          }
+        }
+      }
+      .@{table-prefix-cls} {
+        background-color: @background;
+        .@{table-prefix-cls}-row-expand-icon {
+          border: @popover-border;
+        }
+        tfoot {
+          > tr {
+            > th,
+            > td {
+              border-bottom: @popover-border;
+            }
+          }
+        }
+        thead {
+          > tr {
+            > th {
+              background-color: #272727;
+              border-bottom: @popover-border;
+            }
+          }
+        }
+        tbody {
+          > tr {
+            > td {
+              border-bottom: @popover-border;
+              &.@{table-prefix-cls}-cell-fix-left, &.@{table-prefix-cls}-cell-fix-right {
+                background-color: @background;
+              }
+            }
+            &.@{table-prefix-cls}-row:hover {
+              > td {
+                background: @table-header-sort-active-bg;
+              }
+            }
+          }
+        }
+        &.@{table-prefix-cls}-bordered {
+          .@{table-prefix-cls}-title {
+            border: @popover-border;
+          }
+  
+          // ============================= Cell =============================
+          thead > tr > th,
+          tbody > tr > td,
+          tfoot > tr > th,
+          tfoot > tr > td {
+            border-right: @popover-border;
+          }
+  
+          // Fixed right should provides additional border
+          .@{table-prefix-cls}-cell-fix-right-first::after {
+            border-right: @popover-border;
+          }
+  
+          // ============================ Header ============================
+          table > {
+            thead {
+              > tr:not(:last-child) > th {
+                border-bottom: @border-width-base @border-style-base @border-color-split;
+              }
+            }
+          }
+  
+          // =========================== Content ============================
+          .@{table-prefix-cls}-container {
+            border: @popover-border;
+          }
+  
+          // ========================== Expandable ==========================
+          .@{table-prefix-cls}-expanded-row-fixed {
+            &::after {
+              border-right: @popover-border;
+            }
+          }
+  
+          .@{table-prefix-cls}-footer {
+            border: @popover-border;
+          }
+        }
+        .@{table-prefix-cls}-filter-trigger-container-open {
+          background-color: #525252;
+        }
+      }
+  
+      .@{calendar-prefix-cls}-full {
+        background-color: @background;
+        .@{calendar-picker-prefix-cls}-panel {
+          background-color: @background;
+          .@{calendar-prefix-cls}-date {
+            border-top: 2px solid @popover-customize-border-color;
+          }
+        }
+      }
+  
+      .@{tab-prefix-cls} {
+        &.@{tab-prefix-cls}-card .@{tab-prefix-cls}-card-bar .@{tab-prefix-cls}-tab-active {
+          background-color: @background;
+          border-bottom: @border-width-base solid @background;
+        }
+      }
+  
+      .@{badge-prefix-cls} {
+        &-count {
+          box-shadow: 0 0 0 1px @background;
+        }
+      }
+  
+      .@{tree-prefix-cls} {
+        &-show-line {
+          .@{tree-prefix-cls}-switcher {
+            background: @background;
+          }
+        }
+      }
+    }
+  }
+
+  .box(@position: absolute) {
+    position: @position;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+  }
+  
+  
+@dialog-mask-modal-prefix-cls: ~'@{ant-prefix}-modal';
+@dialog-mask-image-prefix-cls: ~'@{ant-prefix}-image-preview';
+
+.modal-mask() {
+  .@{dialog-mask-modal-prefix-cls},
+  .@{dialog-mask-image-prefix-cls} {
+    pointer-events: none;
+  }
+
+  .@{dialog-mask-modal-prefix-cls}.zoom-enter,
+  .@{dialog-mask-modal-prefix-cls}.zoom-appear,
+  .@{dialog-mask-image-prefix-cls}.zoom-enter,
+  .@{dialog-mask-image-prefix-cls}.zoom-appear {
+    transform: none; // reset scale avoid mousePosition bug
+    opacity: 0;
+    animation-duration: @animation-duration-slow;
+    user-select: none; // https://github.com/ant-design/ant-design/issues/11777
+  }
+
+  .@{dialog-mask-modal-prefix-cls}-mask,
+  .@{dialog-mask-image-prefix-cls}-mask {
+    .box(fixed);
+    z-index: @zindex-modal-mask;
+    height: 100%;
+    background-color: @modal-mask-bg;
+    filter: ~'alpha(opacity=50)';
+
+    &-hidden {
+      display: none;
+    }
+  }
+
+  .@{dialog-mask-modal-prefix-cls}-wrap,
+  .@{dialog-mask-image-prefix-cls}-wrap {
+    .box(fixed);
+    overflow: auto;
+    outline: 0;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+.modal-mask();
+
+  
+  // Config global less under antd
+[class^=~'@{ant-prefix}-'],
+[class*=~' @{ant-prefix}-'] {
+  // remove the clear button of a text input control in IE10+
+  &::-ms-clear,
+  input::-ms-clear,
+  input::-ms-reveal {
+    display: none;
+  }
+
+  &,
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box; // 1
+  }
+}
+
+  /* stylelint-disable at-rule-no-unknown */
+
+// Reboot
+//
+// Normalization of HTML elements, manually forked from Normalize.css to remove
+// styles targeting irrelevant browsers while applying new styles.
+//
+// Normalize is licensed MIT. https://github.com/necolas/normalize.css
+
+// HTML & Body reset
+@{html-selector},
+body {
+  .square(100%);
+}
+
+// remove the clear button of a text input control in IE10+
+input::-ms-clear,
+input::-ms-reveal {
+  display: none;
+}
+
+// Document
+//
+// 1. Change from `box-sizing: content-box` so that `width` is not affected by `padding` or `border`.
+// 2. Change the default font family in all browsers.
+// 3. Correct the line height in all browsers.
+// 4. Prevent adjustments of font size after orientation changes in IE on Windows Phone and in iOS.
+// 5. Setting @viewport causes scrollbars to overlap content in IE11 and Edge, so
+//    we force a non-overlapping, non-auto-hiding scrollbar to counteract.
+// 6. Change the default tap highlight to be completely transparent in iOS.
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box; // 1
+}
+
+@{html-selector} {
+  font-family: sans-serif; // 2
+  line-height: 1.15; // 3
+  -webkit-text-size-adjust: 100%; // 4
+  -ms-text-size-adjust: 100%; // 4
+  -ms-overflow-style: scrollbar; // 5
+  -webkit-tap-highlight-color: fade(@black, 0%); // 6
+}
+
+// IE10+ doesn't honor `<meta name="viewport">` in some cases.
+@-ms-viewport {
+  width: device-width;
+}
+
+// Body
+//
+// 1. remove the margin in all browsers.
+// 2. As a best practice, apply a default `body-background`.
+
+body {
+  margin: 0; // 1
+  color: @text-color;
+  font-size: @font-size-base;
+  font-family: @font-family;
+  font-variant: @font-variant-base;
+  line-height: @line-height-base;
+  background-color: @body-background; // 2
+  font-feature-settings: @font-feature-settings-base;
+}
+
+// Suppress the focus outline on elements that cannot be accessed via keyboard.
+// This prevents an unwanted focus outline from appearing around elements that
+// might still respond to pointer events.
+//
+// Credit: https://github.com/suitcss/base
+[tabindex='-1']:focus {
+  outline: none !important;
+}
+
+// Content grouping
+//
+// 1. Add the correct box sizing in Firefox.
+// 2. Show the overflow in Edge and IE.
+
+hr {
+  box-sizing: content-box; // 1
+  height: 0; // 1
+  overflow: visible; // 2
+}
+
+//
+// Typography
+//
+
+// remove top margins from headings
+//
+// By default, `<h1>`-`<h6>` all receive top and bottom margins. We nuke the top
+// margin for easier control within type scales as it avoids margin collapsing.
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin-top: 0;
+  margin-bottom: 0.5em;
+  color: @heading-color;
+  font-weight: 500;
+}
+
+// Reset margins on paragraphs
+//
+// Similarly, the top margin on `<p>`s get reset. However, we also reset the
+// bottom margin to use `em` units instead of `em`.
+p {
+  margin-top: 0;
+  margin-bottom: 1em;
+}
+
+// Abbreviations
+//
+// 1. remove the bottom border in Firefox 39-.
+// 2. Add the correct text decoration in Chrome, Edge, IE, Opera, and Safari.
+// 3. Add explicit cursor to indicate changed behavior.
+// 4. Duplicate behavior to the data-* attribute for our tooltip plugin
+
+abbr[title],
+abbr[data-original-title] {
+  // 4
+  text-decoration: underline; // 2
+  text-decoration: underline dotted; // 2
+  border-bottom: 0; // 1
+  cursor: help; // 3
+}
+
+address {
+  margin-bottom: 1em;
+  font-style: normal;
+  line-height: inherit;
+}
+
+input[type='text'],
+input[type='password'],
+input[type='number'],
+textarea {
+  -webkit-appearance: none;
+}
+
+ol,
+ul,
+dl {
+  margin-top: 0;
+  margin-bottom: 1em;
+}
+
+ol ol,
+ul ul,
+ol ul,
+ul ol {
+  margin-bottom: 0;
+}
+
+dt {
+  font-weight: 500;
+}
+
+dd {
+  margin-bottom: 0.5em;
+  margin-left: 0; // Undo browser default
+}
+
+blockquote {
+  margin: 0 0 1em;
+}
+
+dfn {
+  font-style: italic; // Add the correct font style in Android 4.3-
+}
+
+b,
+strong {
+  font-weight: bolder; // Add the correct font weight in Chrome, Edge, and Safari
+}
+
+small {
+  font-size: 80%; // Add the correct font size in all browsers
+}
+
+//
+// Prevent `sub` and `sup` elements from affecting the line height in
+// all browsers.
+//
+
+sub,
+sup {
+  position: relative;
+  font-size: 75%;
+  line-height: 0;
+  vertical-align: baseline;
+}
+
+sub {
+  bottom: -0.25em;
+}
+sup {
+  top: -0.5em;
+}
+
+//
+// Links
+//
+
+a {
+  color: @link-color;
+  text-decoration: @link-decoration;
+  background-color: transparent; // remove the gray background on active links in IE 10.
+  outline: none;
+  cursor: pointer;
+  transition: color 0.3s;
+  -webkit-text-decoration-skip: objects; // remove gaps in links underline in iOS 8+ and Safari 8+.
+
+  &:hover {
+    color: @link-hover-color;
+  }
+
+  &:active {
+    color: @link-active-color;
+  }
+
+  &:active,
+  &:hover {
+    text-decoration: @link-hover-decoration;
+    outline: 0;
+  }
+
+  // https://github.com/ant-design/ant-design/issues/22503
+  &:focus {
+    text-decoration: @link-focus-decoration;
+    outline: @link-focus-outline;
+  }
+
+  &[disabled] {
+    color: @disabled-color;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+}
+
+//
+// Code
+//
+
+pre,
+code,
+kbd,
+samp {
+  font-size: 1em; // Correct the odd `em` font sizing in all browsers.
+  font-family: @code-family;
+}
+
+pre {
+  // remove browser default top margin
+  margin-top: 0;
+  // Reset browser default of `1em` to use `em`s
+  margin-bottom: 1em;
+  // Don't allow content to break outside
+  overflow: auto;
+}
+
+//
+// Figures
+//
+figure {
+  // Apply a consistent margin strategy (matches our type styles).
+  margin: 0 0 1em;
+}
+
+//
+// Images and content
+//
+
+img {
+  vertical-align: middle;
+  border-style: none; // remove the border on images inside links in IE 10-.
+}
+
+svg:not(:root) {
+  overflow: hidden; // Hide the overflow in IE
+}
+
+// Avoid 300ms click delay on touch devices that support the `touch-action` CSS property.
+//
+// In particular, unlike most other browsers, IE11+Edge on Windows 10 on touch devices and IE Mobile 10-11
+// DON'T remove the click delay when `<meta name="viewport" content="width=device-width">` is present.
+// However, they DO support emoving the click delay via `touch-action: manipulation`.
+// See:
+// * https://getbootstrap.com/docs/4.0/content/reboot/#click-delay-optimization-for-touch
+// * http://caniuse.com/#feat=css-touch-action
+// * https://patrickhlauke.github.io/touch/tests/results/#suppressing-300ms-delay
+
+a,
+area,
+button,
+[role='button'],
+input:not([type='range']),
+label,
+select,
+summary,
+textarea {
+  touch-action: manipulation;
+}
+
+//
+// Tables
+//
+
+table {
+  border-collapse: collapse; // Prevent double borders
+}
+
+caption {
+  padding-top: 0.75em;
+  padding-bottom: 0.3em;
+  color: @text-color-secondary;
+  text-align: left;
+  caption-side: bottom;
+}
+
+th {
+  // Matches default `<td>` alignment by inheriting from the `<body>`, or the
+  // closest parent with a set `text-align`.
+  text-align: inherit;
+}
+
+//
+// Forms
+//
+
+input,
+button,
+select,
+optgroup,
+textarea {
+  margin: 0; // remove the margin in Firefox and Safari
+  color: inherit;
+  font-size: inherit;
+  font-family: inherit;
+  line-height: inherit;
+}
+
+button,
+input {
+  overflow: visible; // Show the overflow in Edge
+}
+
+button,
+select {
+  text-transform: none; // remove the inheritance of text transform in Firefox
+}
+
+// 1. Prevent a WebKit bug where (2) destroys native `audio` and `video`
+//    controls in Android 4.
+// 2. Correct the inability to style clickable types in iOS and Safari.
+button,
+@{html-selector} [type="button"], /* 1 */
+[type="reset"],
+[type="submit"] {
+  -webkit-appearance: button; // 2
+}
+
+// remove inner border and padding from Firefox, but don't restore the outline like Normalize.
+button::-moz-focus-inner,
+[type='button']::-moz-focus-inner,
+[type='reset']::-moz-focus-inner,
+[type='submit']::-moz-focus-inner {
+  padding: 0;
+  border-style: none;
+}
+
+input[type='radio'],
+input[type='checkbox'] {
+  box-sizing: border-box; // 1. Add the correct box sizing in IE 10-
+  padding: 0; // 2. remove the padding in IE 10-
+}
+
+input[type='date'],
+input[type='time'],
+input[type='datetime-local'],
+input[type='month'] {
+  // remove the default appearance of temporal inputs to avoid a Mobile Safari
+  // bug where setting a custom line-height prevents text from being vertically
+  // centered within the input.
+  // See https://bugs.webkit.org/show_bug.cgi?id=139848
+  // and https://github.com/twbs/bootstrap/issues/11266
+  -webkit-appearance: listbox;
+}
+
+textarea {
+  overflow: auto; // remove the default vertical scrollbar in IE.
+  // Textareas should really only resize vertically so they don't break their (horizontal) containers.
+  resize: vertical;
+}
+
+fieldset {
+  // Browsers set a default `min-width: min-content;` on fieldsets,
+  // unlike e.g. `<div>`s, which have `min-width: 0;` by default.
+  // So we reset that to ensure fieldsets behave more like a standard block element.
+  // See https://github.com/twbs/bootstrap/issues/12359
+  // and https://html.spec.whatwg.org/multipage/#the-fieldset-and-legend-elements
+  min-width: 0;
+  margin: 0;
+  // Reset the default outline behavior of fieldsets so they don't affect page layout.
+  padding: 0;
+  border: 0;
+}
+
+// 1. Correct the text wrapping in Edge and IE.
+// 2. Correct the color inheritance from `fieldset` elements in IE.
+legend {
+  display: block;
+  width: 100%;
+  max-width: 100%; // 1
+  margin-bottom: 0.5em;
+  padding: 0;
+  color: inherit; // 2
+  font-size: 1.5em;
+  line-height: inherit;
+  white-space: normal; // 1
+}
+
+progress {
+  vertical-align: baseline; // Add the correct vertical alignment in Chrome, Firefox, and Opera.
+}
+
+// Correct the cursor style of incement and decement buttons in Chrome.
+[type='number']::-webkit-inner-spin-button,
+[type='number']::-webkit-outer-spin-button {
+  height: auto;
+}
+
+[type='search'] {
+  // This overrides the extra rounded corners on search inputs in iOS so that our
+  // `.form-control` class can properly style them. Note that this cannot simply
+  // be added to `.form-control` as it's not specific enough. For details, see
+  // https://github.com/twbs/bootstrap/issues/11586.
+  outline-offset: -2px; // 2. Correct the outline style in Safari.
+  -webkit-appearance: none;
+}
+
+//
+// remove the inner padding and cancel buttons in Chrome and Safari on macOS.
+//
+
+[type='search']::-webkit-search-cancel-button,
+[type='search']::-webkit-search-decoration {
+  -webkit-appearance: none;
+}
+
+//
+// 1. Correct the inability to style clickable types in iOS and Safari.
+// 2. Change font properties to `inherit` in Safari.
+//
+
+::-webkit-file-upload-button {
+  font: inherit; // 2
+  -webkit-appearance: button; // 1
+}
+
+//
+// Correct element displays
+//
+
+output {
+  display: inline-block;
+}
+
+summary {
+  display: list-item; // Add the correct display in all browsers
+}
+
+template {
+  display: none; // Add the correct display in IE
+}
+
+// Always hide an element with the `hidden` HTML attribute (from PureCSS).
+// Needed for proper display in IE 10-.
+[hidden] {
+  display: none !important;
+}
+
+mark {
+  padding: 0.2em;
+  background-color: @yellow-1;
+}
+
+::selection {
+  color: @text-color-inverse;
+  background: @text-selection-bg;
+}
+
+// Utility classes
+.clearfix {
+  .clearfix();
+}
+
+
+.@{iconfont-css-prefix} {
+    .iconfont-mixin();
+  
+    &[tabindex] {
+      cursor: pointer;
+    }
+  }
+  
+  .@{iconfont-css-prefix}-spin::before {
+    display: inline-block;
+    animation: loadingCircle 1s infinite linear;
+  }
+  .@{iconfont-css-prefix}-spin {
+    display: inline-block;
+    animation: loadingCircle 1s infinite linear;
+  }
+  .fade-motion(@className, @keyframeName) {
+    .make-motion(@className, @keyframeName);
+    .@{className}-enter,
+    .@{className}-appear {
+      opacity: 0;
+      animation-timing-function: linear;
+    }
+    .@{className}-leave {
+      animation-timing-function: linear;
+    }
+  }
+  
+  .fade-motion(fade, antFade);
+  
+  @keyframes antFadeIn {
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+  
+  @keyframes antFadeOut {
+    0% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+  .move-motion(@className, @keyframeName) {
+    .make-motion(@className, @keyframeName);
+    .@{className}-enter,
+    .@{className}-appear {
+      opacity: 0;
+      animation-timing-function: @ease-out-circ;
+    }
+    .@{className}-leave {
+      animation-timing-function: @ease-in-circ;
+    }
+  }
+  
+  .move-motion(move-up, antMoveUp);
+  .move-motion(move-down, antMoveDown);
+  .move-motion(move-left, antMoveLeft);
+  .move-motion(move-right, antMoveRight);
+  
+  @keyframes antMoveDownIn {
+    0% {
+      transform: translateY(100%);
+      transform-origin: 0 0;
+      opacity: 0;
+    }
+    100% {
+      transform: translateY(0%);
+      transform-origin: 0 0;
+      opacity: 1;
+    }
+  }
+  
+  @keyframes antMoveDownOut {
+    0% {
+      transform: translateY(0%);
+      transform-origin: 0 0;
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(100%);
+      transform-origin: 0 0;
+      opacity: 0;
+    }
+  }
+  
+  @keyframes antMoveLeftIn {
+    0% {
+      transform: translateX(-100%);
+      transform-origin: 0 0;
+      opacity: 0;
+    }
+    100% {
+      transform: translateX(0%);
+      transform-origin: 0 0;
+      opacity: 1;
+    }
+  }
+  
+  @keyframes antMoveLeftOut {
+    0% {
+      transform: translateX(0%);
+      transform-origin: 0 0;
+      opacity: 1;
+    }
+    100% {
+      transform: translateX(-100%);
+      transform-origin: 0 0;
+      opacity: 0;
+    }
+  }
+  
+  @keyframes antMoveRightIn {
+    0% {
+      transform: translateX(100%);
+      transform-origin: 0 0;
+      opacity: 0;
+    }
+    100% {
+      transform: translateX(0%);
+      transform-origin: 0 0;
+      opacity: 1;
+    }
+  }
+  
+  @keyframes antMoveRightOut {
+    0% {
+      transform: translateX(0%);
+      transform-origin: 0 0;
+      opacity: 1;
+    }
+    100% {
+      transform: translateX(100%);
+      transform-origin: 0 0;
+      opacity: 0;
+    }
+  }
+  
+  @keyframes antMoveUpIn {
+    0% {
+      transform: translateY(-100%);
+      transform-origin: 0 0;
+      opacity: 0;
+    }
+    100% {
+      transform: translateY(0%);
+      transform-origin: 0 0;
+      opacity: 1;
+    }
+  }
+  
+  @keyframes antMoveUpOut {
+    0% {
+      transform: translateY(0%);
+      transform-origin: 0 0;
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(-100%);
+      transform-origin: 0 0;
+      opacity: 0;
+    }
+  }
+
+  @keyframes loadingCircle {
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+  
+  @click-animating-true: ~"[@{ant-prefix}-click-animating='true']";
+  @click-animating-with-extra-node-true: ~"[@{ant-prefix}-click-animating-without-extra-node='true']";
+  
+  @{click-animating-true},
+  @{click-animating-with-extra-node-true} {
+    position: relative;
+  }
+  
+  html {
+    --antd-wave-shadow-color: @primary-color;
+    --scroll-bar: 0;
+  }
+  
+  @click-animating-with-extra-node-true-after: ~'@{click-animating-with-extra-node-true}::after';
+  
+  @{click-animating-with-extra-node-true-after},
+  .@{ant-prefix}-click-animating-node {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    display: block;
+    border-radius: inherit;
+    box-shadow: 0 0 0 0 @primary-color;
+    box-shadow: 0 0 0 0 var(--antd-wave-shadow-color);
+    opacity: 0.2;
+    animation: fadeEffect 2s @ease-out-circ, waveEffect 0.4s @ease-out-circ;
+    animation-fill-mode: forwards;
+    content: '';
+    pointer-events: none;
+  }
+  
+  @keyframes waveEffect {
+    100% {
+      box-shadow: 0 0 0 @primary-color;
+      box-shadow: 0 0 0 @wave-animation-width var(--antd-wave-shadow-color);
+    }
+  }
+  
+  @keyframes fadeEffect {
+    100% {
+      opacity: 0;
+    }
+  }
+
+  .slide-motion(@className, @keyframeName) {
+    .make-motion(@className, @keyframeName);
+    .@{className}-enter,
+    .@{className}-appear {
+      opacity: 0;
+      animation-timing-function: @ease-out-quint;
+    }
+    .@{className}-leave {
+      animation-timing-function: @ease-in-quint;
+    }
+  }
+  
+  .slide-motion(slide-up, antSlideUp);
+  .slide-motion(slide-down, antSlideDown);
+  .slide-motion(slide-left, antSlideLeft);
+  .slide-motion(slide-right, antSlideRight);
+  
+  @keyframes antSlideUpIn {
+    0% {
+      transform: scaleY(0.8);
+      transform-origin: 0% 0%;
+      opacity: 0;
+    }
+    100% {
+      transform: scaleY(1);
+      transform-origin: 0% 0%;
+      opacity: 1;
+    }
+  }
+  
+  @keyframes antSlideUpOut {
+    0% {
+      transform: scaleY(1);
+      transform-origin: 0% 0%;
+      opacity: 1;
+    }
+    100% {
+      transform: scaleY(0.8);
+      transform-origin: 0% 0%;
+      opacity: 0;
+    }
+  }
+  
+  @keyframes antSlideDownIn {
+    0% {
+      transform: scaleY(0.8);
+      transform-origin: 100% 100%;
+      opacity: 0;
+    }
+    100% {
+      transform: scaleY(1);
+      transform-origin: 100% 100%;
+      opacity: 1;
+    }
+  }
+  
+  @keyframes antSlideDownOut {
+    0% {
+      transform: scaleY(1);
+      transform-origin: 100% 100%;
+      opacity: 1;
+    }
+    100% {
+      transform: scaleY(0.8);
+      transform-origin: 100% 100%;
+      opacity: 0;
+    }
+  }
+  
+  @keyframes antSlideLeftIn {
+    0% {
+      transform: scaleX(0.8);
+      transform-origin: 0% 0%;
+      opacity: 0;
+    }
+    100% {
+      transform: scaleX(1);
+      transform-origin: 0% 0%;
+      opacity: 1;
+    }
+  }
+  
+  @keyframes antSlideLeftOut {
+    0% {
+      transform: scaleX(1);
+      transform-origin: 0% 0%;
+      opacity: 1;
+    }
+    100% {
+      transform: scaleX(0.8);
+      transform-origin: 0% 0%;
+      opacity: 0;
+    }
+  }
+  
+  @keyframes antSlideRightIn {
+    0% {
+      transform: scaleX(0.8);
+      transform-origin: 100% 0%;
+      opacity: 0;
+    }
+    100% {
+      transform: scaleX(1);
+      transform-origin: 100% 0%;
+      opacity: 1;
+    }
+  }
+  
+  @keyframes antSlideRightOut {
+    0% {
+      transform: scaleX(1);
+      transform-origin: 100% 0%;
+      opacity: 1;
+    }
+    100% {
+      transform: scaleX(0.8);
+      transform-origin: 100% 0%;
+      opacity: 0;
+    }
+  }
+
+  .zoom-motion(@className, @keyframeName, @duration: @animation-duration-base) {
+    .make-motion(@className, @keyframeName, @duration);
+    .@{className}-enter,
+    .@{className}-appear {
+      transform: scale(0); // need this by yiminghe
+      opacity: 0;
+      animation-timing-function: @ease-out-circ;
+  
+      &-prepare {
+        transform: none;
+      }
+    }
+    .@{className}-leave {
+      animation-timing-function: @ease-in-out-circ;
+    }
+  }
+  
+  // For Modal, Select choosen item
+  .zoom-motion(zoom, antZoom);
+  // For Popover, Popconfirm, Dropdown
+  .zoom-motion(zoom-big, antZoomBig);
+  // For Tooltip
+  .zoom-motion(zoom-big-fast, antZoomBig, @animation-duration-fast);
+  
+  .zoom-motion(zoom-up, antZoomUp);
+  .zoom-motion(zoom-down, antZoomDown);
+  .zoom-motion(zoom-left, antZoomLeft);
+  .zoom-motion(zoom-right, antZoomRight);
+  
+  @keyframes antZoomIn {
+    0% {
+      transform: scale(0.2);
+      opacity: 0;
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+  
+  @keyframes antZoomOut {
+    0% {
+      transform: scale(1);
+    }
+    100% {
+      transform: scale(0.2);
+      opacity: 0;
+    }
+  }
+  
+  @keyframes antZoomBigIn {
+    0% {
+      transform: scale(0.8);
+      opacity: 0;
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+  
+  @keyframes antZoomBigOut {
+    0% {
+      transform: scale(1);
+    }
+    100% {
+      transform: scale(0.8);
+      opacity: 0;
+    }
+  }
+  
+  @keyframes antZoomUpIn {
+    0% {
+      transform: scale(0.8);
+      transform-origin: 50% 0%;
+      opacity: 0;
+    }
+    100% {
+      transform: scale(1);
+      transform-origin: 50% 0%;
+    }
+  }
+  
+  @keyframes antZoomUpOut {
+    0% {
+      transform: scale(1);
+      transform-origin: 50% 0%;
+    }
+    100% {
+      transform: scale(0.8);
+      transform-origin: 50% 0%;
+      opacity: 0;
+    }
+  }
+  
+  @keyframes antZoomLeftIn {
+    0% {
+      transform: scale(0.8);
+      transform-origin: 0% 50%;
+      opacity: 0;
+    }
+    100% {
+      transform: scale(1);
+      transform-origin: 0% 50%;
+    }
+  }
+  
+  @keyframes antZoomLeftOut {
+    0% {
+      transform: scale(1);
+      transform-origin: 0% 50%;
+    }
+    100% {
+      transform: scale(0.8);
+      transform-origin: 0% 50%;
+      opacity: 0;
+    }
+  }
+  
+  @keyframes antZoomRightIn {
+    0% {
+      transform: scale(0.8);
+      transform-origin: 100% 50%;
+      opacity: 0;
+    }
+    100% {
+      transform: scale(1);
+      transform-origin: 100% 50%;
+    }
+  }
+  
+  @keyframes antZoomRightOut {
+    0% {
+      transform: scale(1);
+      transform-origin: 100% 50%;
+    }
+    100% {
+      transform: scale(0.8);
+      transform-origin: 100% 50%;
+      opacity: 0;
+    }
+  }
+  
+  @keyframes antZoomDownIn {
+    0% {
+      transform: scale(0.8);
+      transform-origin: 50% 100%;
+      opacity: 0;
+    }
+    100% {
+      transform: scale(1);
+      transform-origin: 50% 100%;
+    }
+  }
+  
+  @keyframes antZoomDownOut {
+    0% {
+      transform: scale(1);
+      transform-origin: 50% 100%;
+    }
+    100% {
+      transform: scale(0.8);
+      transform-origin: 50% 100%;
+      opacity: 0;
+    }
+  }
+  
+  
+// For common/openAnimation
+.ant-motion-collapse-legacy {
+    overflow: hidden;
+    &-active {
+      transition: height 0.15s @ease-in-out, opacity 0.15s @ease-in-out !important;
+    }
+  }
+  
+  .ant-motion-collapse {
+    overflow: hidden;
+    transition: height 0.15s @ease-in-out, opacity 0.15s @ease-in-out !important;
+  }
+  
+  
+
+  
+// cdk overlay
+.cdk-overlay-container {
+    pointer-events: none;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    position: fixed;
+    z-index: 1000;
+  }
+  
+  .cdk-overlay-backdrop {
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    -webkit-tap-highlight-color: transparent;
+    transition: opacity .4s cubic-bezier(.25, .8, .25, 1);
+    opacity: 0;
+    position: absolute;
+    pointer-events: auto;
+    z-index: 1000;
+  
+    &.ant-modal-mask {
+      opacity: 1;
+    }
+  }
+  
+  .cdk-overlay-pane {
+    position: absolute;
+    pointer-events: auto;
+    z-index: 1000; // Give an opportunity to the content own to manage their z-index such as Modal
+  }
+  
+  .cdk-overlay-connected-position-bounding-box {
+    position: absolute;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    min-width: 1px;
+    min-height: 1px;
+  }
+  
+  // Used when disabling global scrolling.
+  .cdk-global-scrollblock {
+    position: fixed;
+  
+    // Necessary for the content not to lose its width. Note that we're using 100%, instead of
+    // 100vw, because 100vw includes the width plus the scrollbar, whereas 100% is the width
+    // that the element had before we made it `fixed`.
+    width: 100%;
+  
+    // Note: this will always add a scrollbar to whatever element it is on, which can
+    // potentially result in double scrollbars. It shouldn't be an issue, because we won't
+    // block scrolling on a page that doesn't have a scrollbar in the first place.
+    overflow-y: scroll;
+  
+    // https://github.com/angular/material2/issues/15051
+    body {
+      overflow-x: visible;
+    }
+  }
+  
+  .nz-overlay-transparent-backdrop {
+    &, &.cdk-overlay-backdrop-showing {
+      opacity: 0;
+    }
+  }
+  
+  .nz-animate-disabled {
+    // drawer
+    &.ant-drawer {
+      &.ant-drawer-open .ant-drawer-mask {
+        animation: none;
+        transition: none;
+      }
+  
+      & > * {
+        transition: none;
+      }
+    }
+  
+    // modal
+    .ant-modal-mask, .ant-modal {
+      animation: none;
+      transition: none;
+  
+      &.zoom-enter, &.zoom-leave,
+      &.zoom-enter-active, &.zoom-leave-active {
+        animation: none;
+        transition: none;
+      }
+    }
+  
+    // menu
+    &.ant-menu {
+      transition: none;
+  
+      .ant-menu-item, .ant-menu-submenu-title {
+        transition: none;
+      }
+  
+      .ant-menu-item .anticon, .ant-menu-submenu-title .anticon {
+        transition: none;
+  
+        & + span {
+          transition: none;
+        }
+      }
+    }
+  
+    // tabs
+    &.ant-tabs {
+      .ant-tabs-top-content.ant-tabs-content-animated,
+      .ant-tabs-bottom-content.ant-tabs-content-animated,
+      .ant-tabs-top-content > .ant-tabs-tabpane,
+      .ant-tabs-bottom-content > .ant-tabs-tabpane,
+      &.ant-tabs-left .ant-tabs-ink-bar-animated,
+      &.ant-tabs-right .ant-tabs-ink-bar-animated,
+      &.ant-tabs-top .ant-tabs-ink-bar-animated,
+      &.ant-tabs-bottom .ant-tabs-ink-bar-animated {
+        transition: none;
+      }
+    }
+  }
