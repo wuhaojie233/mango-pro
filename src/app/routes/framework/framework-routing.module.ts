@@ -10,9 +10,35 @@ const routes: Routes = [
     pathMatch: 'full',
     redirectTo: 'system',
   },
+
   {
     path: 'system',
     component: HomeComponent,
+    children: [
+      {
+        path: 'manage',
+        loadChildren: () =>
+          import('src/app/pages/manage/manage.module').then(
+            (m) => m.ManageModule
+          ),
+      },
+      {
+        path: 'welcome',
+        loadChildren: () =>
+          import('src/app/pages/welcome/welcome.module').then(
+            (m) => m.WelcomeModule
+          ),
+      },
+      {
+        path: '',
+        pathMatch: 'full',
+        redirectTo: 'system/welcome',
+      },
+      {
+        path: '**',
+        redirectTo: 'system',
+      },
+    ],
   },
   {
     path: '**',
