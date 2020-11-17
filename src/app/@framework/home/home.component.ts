@@ -24,11 +24,13 @@ export class HomeComponent implements OnInit {
     this.router.navigate([`/home/system/${data}`])
   }
   prepareRoute(outlet: RouterOutlet) {
-    let status =
-      outlet &&
-      outlet.activatedRouteData &&
-      outlet.activatedRouteData['animation']
-    console.warn(status)
+    let status = 
+      outlet && outlet?.activatedRoute && outlet.activatedRoute.component['name']
+    // let status =
+    //   outlet &&
+    //   outlet.activatedRouteData &&
+    //   outlet.activatedRouteData['animation']
+    // console.warn(status)
     return status
   }
 }

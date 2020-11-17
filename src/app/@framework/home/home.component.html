@@ -14,14 +14,16 @@
         <nz-breadcrumb-item>List</nz-breadcrumb-item>
         <nz-breadcrumb-item>App</nz-breadcrumb-item>
       </nz-breadcrumb>
-      <nz-content [@routeAnimations]="prepareRoute(outlet)">
+      <nz-content>
         <button nz-button nzType="primary" (click)="toRouter('manage')">
           manage
         </button>
         <button nz-button nzType="primary" (click)="toRouter('welcome')">
           welcome
         </button>
-        <router-outlet #outlet="outlet"></router-outlet>
+        <div [@routeAnimations]="prepareRoute(outlet)">
+          <router-outlet #outlet="outlet"></router-outlet>
+        </div>
       </nz-content>
     </nz-layout>
   </nz-layout>

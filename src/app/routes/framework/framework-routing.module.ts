@@ -6,9 +6,8 @@ import { HomeComponent } from '../../@framework/home/home.component'
 const routes: Routes = [
   {
     path: '',
-
     pathMatch: 'full',
-    redirectTo: 'system',
+    redirectTo: 'system/welcome',
   },
 
   {
@@ -31,18 +30,17 @@ const routes: Routes = [
       },
       {
         path: '',
-        pathMatch: 'full',
         redirectTo: 'system/welcome',
       },
       {
         path: '**',
-        redirectTo: 'system',
+        redirectTo: 'system/welcome',
       },
     ],
   },
   {
     path: '**',
-    redirectTo: 'system',
+    redirectTo: 'system/welcome',
   },
 ]
 
